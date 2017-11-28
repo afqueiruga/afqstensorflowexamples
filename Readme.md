@@ -1,11 +1,11 @@
 # Trials of TensorFlow from a Computationalist
+
 ## Intro
 This is a small collection of my trials learning TensorFlow. There's a lot of different examples out there that seem overly complex and aren't really using the intended idioms. The documentation itself is no exception. The notebooks and utilities are the best code I can write after sifting through everything I've dredged up on the internet, while constantly pestering my dear friend E. H. at Brain.
 
 ## Impetus
 
-
-The example datafile 'fractureplane.db' included in this repository are the results of a finite element simulation to sample the flow of a fluid around proppants. Each sample is a different random distribution of particles with different densiteis and fracture heights.
+The example datafile 'fractureplane.db' included in this repository are the results of a finite element simulation to sample the flow of a fluid around proppants. Each sample is a different random distribution of particles with different densities and fracture heights.
 
 My goals are:
 
@@ -15,3 +15,8 @@ My goals are:
 4. Check your in-production usage against the original training data and requesting new data points.
 
 The file afqstensorutils.py contains all of the utility functions I'm writing.
+
+## Progress
+
+1. [[polynomials.ipynb]] : Fitting the given data to a basis of polynomials
+2. [[model_loading.ipynd]] : Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
