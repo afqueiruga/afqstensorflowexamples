@@ -78,6 +78,7 @@ def outer(a,b, triangle=False):
         for j in xrange(i if triangle else 0,b.shape[-1]):
             p.append( a[:,i]*b[:,j] )
     return tf.stack(p, axis=-1)
+
 def polyexpand(a,o):
     """
     Build and stack a polynomial basis set of a up to exponent o. Includes
@@ -99,3 +100,21 @@ def travel_op(op,indents=0):
     for i in op.inputs:
         travel_op(i.op,indents+2)
         
+def write_trimmed_graph(graph,sess,
+                        outputs,# input_node,
+                        ofile):
+    """
+    Take a graph description, trim it down, and write it
+    """
+    output_graph_def \
+        = tf.graph_util.convert_variables_to_constants(
+            sess,graph.as_graph_def(),outputs)
+    sub_output = tf.graph_util.extract_sub_graph(
+        output_graph_def, outputs)
+    newgraph=tf.Graph()
+    with newgraph.as_default():
+        tf.import_graph_def(sub_output,
+                            name='',
+                            return_elements=outputs)
+        meta_graph_def = tf.train.export_meta_graph(filename=ofile,
+                                                    graph_def=newgraph.as_graph_def())

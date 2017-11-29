@@ -7,11 +7,13 @@ This is a small collection of my trials learning TensorFlow. There's a lot of di
 
 The example datafile 'fractureplane.db' included in this repository are the results of a finite element simulation to sample the flow of a fluid around proppants. Each sample is a different random distribution of particles with different densities and fracture heights.
 
+$\bar{v} = f(\Delta p,h,n)$
+
 My goals are:
 
 1. Designing models that fit physical phenomena with emergent nonlinearities and phase boundaries.
 2. Higher order methods for training.
-3. Turn the trained model into something that can be used in a scientific code. 
+3. Turn the trained model into something that can be used in a scientific code.
 4. Check your in-production usage against the original training data and requesting new data points.
 
 The file afqstensorutils.py contains all of the utility functions I'm writing.
