@@ -18,5 +18,5 @@ The file afqstensorutils.py contains all of the utility functions I'm writing.
 
 ## Progress
 
-1. [[polynomials.ipynb]] : Fitting the given data to a basis of polynomials
-2. [[model_loading.ipynd]] : Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
+1. [polynomials.ipynb](polynomials.ipynb) : Fitting the given data to a basis of polynomials
+2. [model_loading.ipynd](model_loading.ipynb): Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
