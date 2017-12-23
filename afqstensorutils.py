@@ -65,6 +65,41 @@ class Scaler():
               + self.scale[i+j][0]
         return y
 
+def CatVariable(shapes, stddev=0.0):
+    l = 0
+    for shp in shapes:
+        il = 1
+        for s in shp: il *= s
+        l += il
+    # V = tf.Variable(tf.zeros(shape=(l,)))
+    V = tf.Variable(tf.truncated_normal(shape=(l,), stddev=stddev))
+    cuts = []
+    l = 0
+    for shp in shapes:
+        il = 1
+        for s in shp: il *= s
+        cuts.append(tf.reshape(V[l:(l+il)],shp))
+        l += il
+    return V, cuts
+
+def NewtonsMethod(P, x, alpha=1.0):
+    """
+    Gives you an operator that performs standard Newton's method
+    """
+    if len(x.shape)!=1:
+        Exception('')
+    N = x.shape[0]
+    Grad = tf.gradients(P,x)[0]
+    # TensorFlow f's up the shapes a lot, so I'm constantly reshaping
+    Hess = tf.reshape(tf.hessians(P,x)[0],shape=[N,N])
+    return [
+      x.assign_add(-tf.squeeze( # Reshaping to have 1 dimension
+                   # Never invert!!!!
+                   tf.matrix_solve(Hess,
+                            tf.expand_dims(Grad,1))# Reshaping to have 2 dimensions
+                ))
+    ]
+    
 def outer(a,b, triangle=False):
     """
     Symbolic outer product:
@@ -118,3 +153,4 @@ def write_trimmed_graph(graph,sess,
                             return_elements=outputs)
         meta_graph_def = tf.train.export_meta_graph(filename=ofile,
                                                     graph_def=newgraph.as_graph_def())
+
