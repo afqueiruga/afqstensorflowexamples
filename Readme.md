@@ -28,6 +28,7 @@ My goals are:
 
 1. [polynomials.ipynb](polynomials.ipynb) : Fitting the given data to a basis of polynomials
 2. [model_loading.ipynb](model_loading.ipynb): Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
+3. [hessian_mnist.ipynb](hessian_mnist.ipynb): A side track investigating the hessian matrix of the softmax mnist model.
 
 The file [afqstensorutils.py](afqstensorutils.py) contains all of the utility functions I'm writing.
 
