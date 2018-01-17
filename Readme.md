@@ -7,11 +7,11 @@ This is a small collection of my trials learning TensorFlow. There's a lot of di
 
 ## Impetus
 
-The example datafile 'fractureplane.db' included in this repository are the results of a finite element simulationof steady state Stokes flow coded up in [FEniCS](fenicsproject.org) to sample the flow of a fluid around proppants. The database was written with my library [SimDataDB](https://bitbucket.org/afqueiruga/simdatadb/) that some of the notebooks require to load. (It's just sqlite3 with one table with fields Dp, h, n, and v.)
-
-Each sample is a different random distribution of particles with different densities and fracture heights. One of these samples looks like this:
+The example datafile 'fractureplane.db' included in this repository are the results of a finite element simulation of steady state Stokes flow coded up in [FEniCS](fenicsproject.org) to sample the flow of a fluid around proppants. Each sample is a different random distribution of particles with different densities and fracture heights. The FEniCS code that automatically meshes and solves these this problem is in [churn_parallel_flow.py](churn_parallel_flow.py). One of these samples looks like this:
 
 ![Flow in a fracture around proppants](images/flowfield.png)
+
+The database was written with my library [SimDataDB](https://bitbucket.org/afqueiruga/simdatadb/) that some of the notebooks require to load. (It's just sqlite3 with one table with fields Dp, h, n, and v.) The simulation also requires [afqsfenicsutils](https://bitbucket.org/afqueiruga/afqsfenicsutils/) to run, but pre-generated data is included in the aforementioned database.
 
 With this super simple prototype, we're just looking for a function that looks like this:
 $$\bar{v} = f(\Delta p,h,n)$$
@@ -26,9 +26,9 @@ My goals are:
 
 ## Progress
 
-1. [polynomials.ipynb](polynomials.ipynb) : Fitting the given data to a basis of polynomials
+1. [polynomials.ipynb](polynomials.ipynb) : Fitting the given data to a basis of polynomials. Uses the objective's Hessian to do this in one step.
 2. [model_loading.ipynb](model_loading.ipynb): Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
-3. [hessian_mnist.ipynb](hessian_mnist.ipynb): A side track investigating the hessian matrix of the softmax mnist model.
+3. [hessian_mnist.ipynb](hessian_mnist.ipynb): A side track investigating the hessian matrix of the softmax mnist model, trying to use the Newton solver I wrote for item 1.
 
 The file [afqstensorutils.py](afqstensorutils.py) contains all of the utility functions I'm writing.
 
