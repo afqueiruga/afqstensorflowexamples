@@ -12,6 +12,7 @@ The TensorFlow build scripts don't have a dedicated mac version.
 It's not a big deal because I like to run in Docker on mac anyways, but there is another solution.
 
 
+
 [https://www.tensorflow.org/install/install_c](https://www.tensorflow.org/install/install_c)
 
 
