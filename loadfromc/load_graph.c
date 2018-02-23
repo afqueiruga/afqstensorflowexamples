@@ -15,7 +15,7 @@ void free_buffer(void* data, size_t length) {
 int main() {
   // Graph definition from unzipped https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
   // which is used in the Go, Java and Android examples
-  TF_Buffer* graph_def = read_file("tensorflow_inception_graph.pb");
+  TF_Buffer* graph_def = read_file("../trimmed.pb");
   if(!graph_def) {
 	fprintf(stderr, "ERROR: Unable to read the file\n");
 	return -1;
@@ -28,10 +28,10 @@ int main() {
   TF_GraphImportGraphDef(graph, graph_def, opts, status);
   TF_DeleteImportGraphDefOptions(opts);
   if (TF_GetCode(status) != TF_OK) {
-          fprintf(stderr, "ERROR: Unable to import graph %s", TF_Message(status));
+          fprintf(stderr, "ERROR: Unable to import graph %s\n", TF_Message(status));
           return 1;
   }
-  fprintf(stdout, "Successfully imported graph");
+  fprintf(stdout, "Successfully imported graph\n");
   TF_DeleteStatus(status);
   TF_DeleteBuffer(graph_def);
 
