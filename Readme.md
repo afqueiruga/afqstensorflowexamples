@@ -29,6 +29,7 @@ My goals are:
 1. [polynomials.ipynb](polynomials.ipynb) : Fitting the given data to a basis of polynomials. Uses the objective's Hessian to do this in one step.
 2. [model_loading.ipynb](model_loading.ipynb): Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
 3. [hessian_mnist.ipynb](hessian_mnist.ipynb): A side track investigating the hessian matrix of the softmax mnist model, trying to use the Newton solver I wrote for item 1.
+4. [loadfromc](loadfromc): The progression of C files that can load one of these protobuf files and execute them using the TensorFlow API.
 
 The file [afqstensorutils.py](afqstensorutils.py) contains all of the utility functions I'm writing.
 
