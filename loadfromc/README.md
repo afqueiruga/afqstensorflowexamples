@@ -1,6 +1,6 @@
 # Loading and running models from C
 
-We want a light-weight library to load into larger applications that only need to execute the tensorflow models.
+We want a light-weight library to load into larger applications that only need to execute the tensorflow models. Building a C++ application that links to the standard tensorflow install requires adding it to the bazel build system, which is intractable for 
 
 The static library produced by 
 [https://github.com/FloopCZ/tensorflow_cc](https://github.com/FloopCZ/tensorflow_cc)
@@ -12,10 +12,9 @@ The TensorFlow build scripts don't have a dedicated mac version.
 It's not a big deal because I like to run in Docker on mac anyways, but there is another solution.
 
 
-
+TensorFlow provides a slimmed down  precompiled library with an API for C:
 [https://www.tensorflow.org/install/install_c](https://www.tensorflow.org/install/install_c)
-
-
+libtensorflow.so is only 49MB and lets us go with the dynamic linking option. There are precompiled options for macOS, too, but I haven't tried them yet.
 
 ## Loading a graph
 
@@ -28,13 +27,15 @@ from tensorflow.python.platform import gfile
 with gfile.GFile("trimmed.pb", "w") as f:
 	f.write(gd.SerializeToString())
 ```
-The protobuf files can be loaded by the C API. The file [load_graph.c](load_graph.c) is the only working
+The protobuf files can be loaded by the C API. The file [load_graph.c](load_graph.c) is the first working
 example I found from
-[stackoverflow](https://stackoverflow.com/questions/41688217/how-to-load-a-graph-with-tensorflow-so-and-c-api-h-in-c-language)
+[stackoverflow](https://stackoverflow.com/questions/41688217/how-to-load-a-graph-with-tensorflow-so-and-c-api-h-in-c-language), credited to user `ash`.
+
 
 ## Executing a graph
 
-
+After some more digging, I found some more [example code on StackOverflow](https://stackoverflow.com/questions/44305647/segmentation-fault-when-using-tf-sessionrun-to-run-tensorflow-graph-in-c-not-c) that builds on that last bit of code, credited to user `DrBBQ`. (StackOverflow is truly the modern way of learning libraries.) 
+ 
 
 ## Statefullness of Our Computations
 
