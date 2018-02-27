@@ -34,7 +34,7 @@ example I found from
 
 ## Executing a graph
 
-After some more digging, I found some more [example code on StackOverflow](https://stackoverflow.com/questions/44305647/segmentation-fault-when-using-tf-sessionrun-to-run-tensorflow-graph-in-c-not-c) that builds on that last bit of code, credited to user `DrBBQ`. (StackOverflow is truly the modern way of learning libraries.) 
+After some more digging, I found some more [example code on StackOverflow](https://stackoverflow.com/questions/44305647/segmentation-fault-when-using-tf-sessionrun-to-run-tensorflow-graph-in-c-not-c) that builds on that last bit of code, credited to user `DrBBQ`. (StackOverflow is truly the modern way of learning libraries.) I believe this code has a bug in it due to its use of a stack-allocated array for `float values[]` and then passing in a `Deallocator` that calls free. 
  
 
 ## Statefullness of Our Computations

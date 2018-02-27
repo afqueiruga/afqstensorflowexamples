@@ -1,4 +1,4 @@
-#include "tensororflow/c/c_api.h"
+#include "tensorflow/c/c_api.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,12 +32,16 @@ static void Deallocator(void* data, size_t length, void* arg) {
 }
 
 /* My model library */
-
+#define INP_MAX 1
+#define OUT_MAX 1
+typedef  double real_t;
 typedef struct pop_model_str {
   TF_Graph* graph;
-  TF_Output* inputs;
-  TF_Output* outputs;
-
+  TF_Input inputs[INP_MAX];
+  TF_Tensor * in_tens;
+  TF_Output outputs[OUT_MAX];
+  TF_Tensor * out_tens;
+  
   TF_Status * status;
   TF_SessionOptions * opts;
   TF_Session* sess;
@@ -52,28 +56,71 @@ int PopModel_Init(pop_model_t * self, char * fname) {
   self->status = TF_NewStatus();
   self->graph = TF_NewGraph();
   TF_ImportGraphDefOptions* graph_opts = TF_NewImportGraphDefOptions();
-  TF_GraphImportGraphDef(graph, graph_def, graph_opts, status);
-  if (TF_GetCode(status) != TF_OK) {
-          fprintf(stderr, "ERROR: Unable to import graph %s", TF_Message(status));
-          return 1;
+  TF_GraphImportGraphDef(self->graph, graph_def, graph_opts, self->status);
+  if (TF_GetCode(self->status) != TF_OK) {
+	fprintf(stderr, "ERROR: Unable to import graph %s", TF_Message(self->status));
+	return -1;
   }
   else {
-          fprintf(stdout, "Successfully imported graph\n");
+	fprintf(stdout, "Successfully imported graph\n");
   }
   TF_DeleteImportGraphDefOptions(graph_opts);
+  TF_DeleteBuffer(graph_def);
 
+  // Extract the input and output operations
+  TF_Operation* input_op = TF_GraphOperationByName(self->graph, "THEINPUT");
+  self->inputs[0].oper = input_op;
+  self->inputs[0].index = 0;
+  TF_Operation* output_op = TF_GraphOperationByName(self->graph, "THEMODEL");
+  self->outputs[0].oper = output_op;
+  self->outputs[0].index = 0;
+
+  
+  TF_AttrMetadata inmeta = TF_OperationGetAttrMetadata(input_op,"shape", self->status);
+  int nidims = inmeta.total_size;
+  printf("num dims is %d\n",nidims);
+  int64_t idims[nidims];
+  TF_OperationGetAttrShape(input_op,"shape", idims,nidims,self->status);
+  printf("the dims are %ld %ld\n",idims[0],idims[1]);
+
+  int nodims = TF_GraphGetTensorNumDims(self->graph,self->outputs[0],self->status);
+  printf("%d\n",nodims);
+  int64_t odims[nodims];
+  TF_GraphGetTensorShape(self->graph,self->outputs[0],odims,nodims,self->status);
+  
+  printf("%ld %ld\n",odims[0],odims[1]);
+  // We allocate the tensors ahead of time and then copy into them
+  //self->in_tens[0] = TF_AllocateTensor(TF_DOUBLE, in_dims,  1, num_bytes_in);
+  //self->out_tens[0]= TF_AllocateTensor(TF_DOUBLE, out_dims, 1, num_bytes_out);
+  
   // Set up a session which will be used to call this graph
-  opts = TF_NewSessionOptions();
+  self->opts = TF_NewSessionOptions();
   self->sess = TF_NewSession(self->graph, self->opts, self->status);
+  if(TF_GetCode(self->status) != TF_OK) {
+	fprintf(stderr, "ERROR: Unable to create session %s",TF_Message(self->status));
+	return -1;
+  }
+
 }
 
 void PopModel_Destroy(pop_model_t * self) {
   TF_CloseSession(self->sess, self->status);
   TF_DeleteSession(self->sess, self->status);
   TF_DeleteSessionOptions(self->opts);
-  
+  TF_DeleteGraph(self->graph);
+  TF_DeleteStatus(self->status);
 }
 
 void PopModel_Eval(pop_model_t * self, real_t * input, real_t * output) {
   // This routine needs to be made AS FAST AS POSSIBLE
+  
+}
+
+
+int main(int argc, char ** argv) {
+  pop_model_t myModel;
+  PopModel_Init(&myModel, "../trimmed.pb");
+
+  PopModel_Destroy(&myModel);
+  return 0;
 }
