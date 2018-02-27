@@ -34,13 +34,17 @@ static void Deallocator(void* data, size_t length, void* arg) {
 /* My model library */
 #define INP_MAX 1
 #define OUT_MAX 1
-typedef  double real_t;
+typedef  float real_t;
 typedef struct pop_model_str {
   TF_Graph* graph;
-  TF_Input inputs[INP_MAX];
+
+  TF_Output inputs[INP_MAX];
   TF_Tensor * in_tens;
+  size_t in_length;
+  
   TF_Output outputs[OUT_MAX];
   TF_Tensor * out_tens;
+  size_t out_length;
   
   TF_Status * status;
   TF_SessionOptions * opts;
@@ -85,19 +89,21 @@ int PopModel_Init(pop_model_t * self, char * fname) {
   if(idims[0]==-1) idims[0]=1;
   size_t num_bytes_in=1, num_bytes_out=1;
   for(int i=0;i<nidims;i++) num_bytes_in*=idims[i];
+  self->in_length = num_bytes_in;
   num_bytes_in*= sizeof(float);
-  
+  // extract output size
   int nodims = TF_GraphGetTensorNumDims(self->graph,self->outputs[0],self->status);
-  printf("%d\n",nodims);
   int64_t odims[nodims];
   TF_GraphGetTensorShape(self->graph,self->outputs[0],odims,nodims,self->status);
+  printf("The shape of the output is \n");
   printf("%ld %ld\n",odims[0],odims[1]);
   if(odims[0]==-1) odims[0]=1;
   for(int i=0;i<nodims;i++) num_bytes_out*=odims[i];
+  self->out_length = num_bytes_out;
   num_bytes_out *= sizeof(float);
   // We allocate the tensors ahead of time and then copy into them
   self->in_tens = TF_AllocateTensor(TF_FLOAT, idims,  nidims, num_bytes_in);
-  self->out_tens= TF_AllocateTensor(TF_DOUBLE, odims, nodims, num_bytes_out);
+  self->out_tens= TF_AllocateTensor(TF_FLOAT, odims, nodims, num_bytes_out);
   
   // Set up a session which will be used to call this graph
   self->opts = TF_NewSessionOptions();
@@ -106,7 +112,7 @@ int PopModel_Init(pop_model_t * self, char * fname) {
 	fprintf(stderr, "ERROR: Unable to create session %s",TF_Message(self->status));
 	return -1;
   }
-
+  return 0;
 }
 
 void PopModel_Destroy(pop_model_t * self) {
@@ -119,14 +125,30 @@ void PopModel_Destroy(pop_model_t * self) {
 
 void PopModel_Eval(pop_model_t * self, real_t * input, real_t * output) {
   // This routine needs to be made AS FAST AS POSSIBLE
+
+  
+  real_t * ti = TF_TensorData(self->in_tens);
+  for(int i=0;i<self->in_length;i++) ti[i] = input[i];
+  
+  TF_SessionRun(self->sess, NULL,
+                self->inputs, &self->in_tens, 1,
+                self->outputs, &self->out_tens, 1,
+                NULL, 0, NULL, self->status);
+  real_t * to = TF_TensorData(self->out_tens);
+  for(int i=0;i<self->out_length;i++) output[i] = to[i];
   
 }
 
 
 int main(int argc, char ** argv) {
   pop_model_t myModel;
-  PopModel_Init(&myModel, "../trimmed.pb");
-
+  int status;
+  status = PopModel_Init(&myModel, "../trimmed.pb");
+  if(status) return status;
+  real_t input[2] = { 3.0, 1.2 };
+  real_t output[1];
+  PopModel_Eval(&myModel, input,output);
+  printf("f(%f,%f) = %f\n",input[0],input[1], output[0]);
   PopModel_Destroy(&myModel);
   return 0;
 }

@@ -35,7 +35,17 @@ example I found from
 ## Executing a graph
 
 After some more digging, I found some more [example code on StackOverflow](https://stackoverflow.com/questions/44305647/segmentation-fault-when-using-tf-sessionrun-to-run-tensorflow-graph-in-c-not-c) that builds on that last bit of code, credited to user `DrBBQ`. (StackOverflow is truly the modern way of learning libraries.) I believe this code has a bug in it due to its use of a stack-allocated array for `float values[]` and then passing in a `Deallocator` that calls free. 
- 
+
+The code to determine the size of an output node is
+```C
+int nodims = TF_GraphGetTensorNumDims(self->graph,self->outputs[0],self->status);
+int64_t odims[nodims];
+TF_GraphGetTensorShape(self->graph,self->outputs[0],odims,nodims,self->status);
+if(odims[0]==-1) odims[0]=1;
+for(int i=0;i<nodims;i++) num_bytes_out*=odims[i];
+num_bytes_out *= sizeof(float);
+self->out_tens= TF_AllocateTensor(TF_DOUBLE, odims, nodims, num_bytes_out);
+```
 
 ## Statefullness of Our Computations
 
