@@ -82,16 +82,22 @@ int PopModel_Init(pop_model_t * self, char * fname) {
   int64_t idims[nidims];
   TF_OperationGetAttrShape(input_op,"shape", idims,nidims,self->status);
   printf("the dims are %ld %ld\n",idims[0],idims[1]);
-
+  if(idims[0]==-1) idims[0]=1;
+  size_t num_bytes_in=1, num_bytes_out=1;
+  for(int i=0;i<nidims;i++) num_bytes_in*=idims[i];
+  num_bytes_in*= sizeof(float);
+  
   int nodims = TF_GraphGetTensorNumDims(self->graph,self->outputs[0],self->status);
   printf("%d\n",nodims);
   int64_t odims[nodims];
   TF_GraphGetTensorShape(self->graph,self->outputs[0],odims,nodims,self->status);
-  
   printf("%ld %ld\n",odims[0],odims[1]);
+  if(odims[0]==-1) odims[0]=1;
+  for(int i=0;i<nodims;i++) num_bytes_out*=odims[i];
+  num_bytes_out *= sizeof(float);
   // We allocate the tensors ahead of time and then copy into them
-  //self->in_tens[0] = TF_AllocateTensor(TF_DOUBLE, in_dims,  1, num_bytes_in);
-  //self->out_tens[0]= TF_AllocateTensor(TF_DOUBLE, out_dims, 1, num_bytes_out);
+  self->in_tens = TF_AllocateTensor(TF_FLOAT, idims,  nidims, num_bytes_in);
+  self->out_tens= TF_AllocateTensor(TF_DOUBLE, odims, nodims, num_bytes_out);
   
   // Set up a session which will be used to call this graph
   self->opts = TF_NewSessionOptions();
