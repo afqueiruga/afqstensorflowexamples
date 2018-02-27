@@ -125,18 +125,14 @@ void PopModel_Destroy(pop_model_t * self) {
 
 void PopModel_Eval(pop_model_t * self, real_t * input, real_t * output) {
   // This routine needs to be made AS FAST AS POSSIBLE
-
-  
   real_t * ti = TF_TensorData(self->in_tens);
   for(int i=0;i<self->in_length;i++) ti[i] = input[i];
-  
   TF_SessionRun(self->sess, NULL,
                 self->inputs, &self->in_tens, 1,
                 self->outputs, &self->out_tens, 1,
                 NULL, 0, NULL, self->status);
   real_t * to = TF_TensorData(self->out_tens);
   for(int i=0;i<self->out_length;i++) output[i] = to[i];
-  
 }
 
 
