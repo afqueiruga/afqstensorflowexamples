@@ -13,16 +13,14 @@ void WrappedTFModel_Eval(WrappedTFModel * self, REAL * input, REAL * output);
    to live on the stack or in a struct.
 */
 #include "tensorflow/c/c_api.h"
-#define INP_MAX 1
-#define OUT_MAX 1
 struct WrappedTFModel {
   TF_Graph* graph;
 
-  TF_Output inputs[INP_MAX];
+  TF_Output input;
   TF_Tensor * in_tens;
   size_t in_length;
   
-  TF_Output outputs[OUT_MAX];
+  TF_Output output;
   TF_Tensor * out_tens;
   size_t out_length;
   
