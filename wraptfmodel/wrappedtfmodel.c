@@ -1,8 +1,5 @@
 #include "wrappedtfmodel.h"
 
-// TODO autodetect this
-
-#define WRAPTF_TYPE TF_FLOAT
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +23,8 @@ static TF_Buffer* read_file(const char* file) {
 }
 
 
-int  WrappedTFModel_Init(WrappedTFModel * self, char * fname) {
+int  WrappedTFModel_Init(WrappedTFModel * self, char * fname,
+						 char * input_op_name, char * output_op_name) {
   // Read the protobuf file
   printf("WrappedTFModel: reading the graph in %s\n",fname);
   TF_Buffer* graph_def = read_file(fname);
@@ -48,7 +46,7 @@ int  WrappedTFModel_Init(WrappedTFModel * self, char * fname) {
   TF_DeleteBuffer(graph_def);
 
   // Extract and set up the input
-  TF_Operation* input_op = TF_GraphOperationByName(self->graph, "THEINPUT");
+  TF_Operation* input_op = TF_GraphOperationByName(self->graph, input_op_name);
   self->input.oper = input_op;
   self->input.index = 0;
   TF_AttrMetadata inmeta = TF_OperationGetAttrMetadata(input_op,"shape", self->status);
@@ -61,11 +59,11 @@ int  WrappedTFModel_Init(WrappedTFModel * self, char * fname) {
   size_t num_bytes_in=1, num_bytes_out=1;
   for(int i=0;i<nidims;i++) num_bytes_in*=idims[i];
   self->in_length = num_bytes_in;
-  num_bytes_in*= sizeof(float);
-  self->in_tens = TF_AllocateTensor(WRAPTF_TYPE, idims,  nidims, num_bytes_in);
+  num_bytes_in*= sizeof(WRAP_C_TYPE);
+  self->in_tens = TF_AllocateTensor(WRAP_TF_TYPE, idims,  nidims, num_bytes_in);
 
   // Extract and set up the output
-  TF_Operation* output_op = TF_GraphOperationByName(self->graph, "THEMODEL");
+  TF_Operation* output_op = TF_GraphOperationByName(self->graph, output_op_name);
   self->output.oper = output_op;
   self->output.index = 0;
   int nodims = TF_GraphGetTensorNumDims(self->graph,self->output,self->status);
@@ -76,8 +74,8 @@ int  WrappedTFModel_Init(WrappedTFModel * self, char * fname) {
   if(odims[0]==-1) odims[0]=1;
   for(int i=0;i<nodims;i++) num_bytes_out*=odims[i];
   self->out_length = num_bytes_out;
-  num_bytes_out *= sizeof(float);
-  self->out_tens= TF_AllocateTensor(WRAPTF_TYPE, odims, nodims, num_bytes_out);
+  num_bytes_out *= sizeof(WRAP_C_TYPE);
+  self->out_tens= TF_AllocateTensor(WRAP_TF_TYPE, odims, nodims, num_bytes_out);
 
   // Set up a session which will be used to call this graph
   self->opts = TF_NewSessionOptions();
@@ -96,13 +94,13 @@ void WrappedTFModel_Destroy(WrappedTFModel * self) {
   TF_DeleteGraph(self->graph);
   TF_DeleteStatus(self->status);
 }
-void WrappedTFModel_Eval(WrappedTFModel * self, REAL * input, REAL * output) {
-  REAL * ti = TF_TensorData(self->in_tens);
+void WrappedTFModel_Eval(WrappedTFModel * self, WRAP_C_TYPE * input, WRAP_C_TYPE * output) {
+  WRAP_C_TYPE * ti = TF_TensorData(self->in_tens);
   for(int i=0;i<self->in_length;i++) ti[i] = input[i];
   TF_SessionRun(self->sess, NULL,
                 &self->input, &self->in_tens, 1,
                 &self->output, &self->out_tens, 1,
                 NULL, 0, NULL, self->status);
-  REAL * to = TF_TensorData(self->out_tens);
+  WRAP_C_TYPE * to = TF_TensorData(self->out_tens);
   for(int i=0;i<self->out_length;i++) output[i] = to[i];
 }

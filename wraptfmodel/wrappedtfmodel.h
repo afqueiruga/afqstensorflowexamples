@@ -1,12 +1,18 @@
 #ifndef WRAPTFMODEL_H_
 #define WRAPTFMODEL_H_
 
-#define REAL float
+#ifndef WRAP_C_TYPE
+#define WRAP_C_TYPE float
+#endif
+#ifndef WRAP_TF_TYPE
+#define WRAP_TF_TYPE TF_FLOAT
+#endif
 typedef struct WrappedTFModel WrappedTFModel;
 
-int  WrappedTFModel_Init(WrappedTFModel * self, char * fname);
+int  WrappedTFModel_Init(WrappedTFModel * self, char * fname,
+						 char * input_op_name, char * output_op_name);
 void WrappedTFModel_Destroy(WrappedTFModel * self);
-void WrappedTFModel_Eval(WrappedTFModel * self, REAL * input, REAL * output);
+void WrappedTFModel_Eval(WrappedTFModel * self, WRAP_C_TYPE * input, WRAP_C_TYPE * output);
 
 
 /* Opaque pointers are meh. Complete the struct definition to allow the object

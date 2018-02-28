@@ -4,7 +4,7 @@
 int main(int argc, char ** argv) {
   WrappedTFModel myModel;
   int status;
-  status = WrappedTFModel_Init(&myModel, "../trimmed.pb");
+  status = WrappedTFModel_Init(&myModel, "../trimmed.pb","THEINPUT","THEMODEL");
   if(status) return status;
   float input[2] = { 3.0, 1.2 };
   float output[1];
