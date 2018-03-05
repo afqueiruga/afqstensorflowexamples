@@ -30,6 +30,8 @@ My goals are:
 2. [model_loading.ipynb](model_loading.ipynb): Loading the saved model, freezing the variables, and rewriting a trimmed down graph.
 3. [hessian_mnist.ipynb](hessian_mnist.ipynb): A side track investigating the hessian matrix of the softmax mnist model, trying to use the Newton solver I wrote for item 1.
 4. [loadfromc](loadfromc): The progression of C files that can load one of these protobuf files and execute them using the TensorFlow API.
+5. [wraptfmodel](wraptfmodel): A better wrapper for managing loading and calling a model using the C API.
+6. [model_input_gradients.ipynb](model_input_gradients.ipynd): Computing and examining the gradients of a model with respect to its inputs.
 
 The file [afqstensorutils.py](afqstensorutils.py) contains all of the utility functions I'm writing.
 
