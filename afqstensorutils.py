@@ -1,5 +1,5 @@
 import numpy as np
-import tensorflow as tf
+import itertools
 
 def Divy(data, xslice, yslice, rtest, rvalid=0):
     """
@@ -66,6 +66,7 @@ class Scaler():
         return y
 
 def CatVariable(shapes, stddev=0.0):
+    import tensorflow as tf
     l = 0
     for shp in shapes:
         il = 1
@@ -86,6 +87,7 @@ def NewtonsMethod(P, x, alpha=1.0):
     """
     Gives you an operator that performs standard Newton's method
     """
+    import tensorflow as tf
     if len(x.shape)!=1:
         Exception('')
     N = x.shape[0]
@@ -108,6 +110,7 @@ def outer(a,b, triangle=False):
     only return the lower triangle because it's identical to the upper triangle)
     You probably want triangle=True when a==b.
     """
+    import tensorflow as tf
     p = []
     for i in xrange(a.shape[-1]):
         for j in xrange(i if triangle else 0,b.shape[-1]):
@@ -116,19 +119,34 @@ def outer(a,b, triangle=False):
 
 def polyexpand(a,o):
     """
-    Build and stack a polynomial basis set of a up to exponent o. Includes
+    Build and stack a polynomial basis set of up to exponent o. Includes
     all cross terms. E.g.,
     polyexpand([x y], 2) = [ x y x^2 xy y^2 ]
     """
+    import tensorflow as tf
     if o<=0: raise Exception("I don't know what it means when o<=0")
     if o==1: return a
     p = [a,outer(a,a,True)]
-    for i in xrange(2,o+1):
-        p.append(outer(p[-1],a))
+    for i in xrange(3,o+1):
+        exponents = itertools.combinations_with_replacement(range(a.shape[-1]),i)
+        multinom = []        
+        for m in exponents:
+            t = a[:,m[0]]
+            for e in m[1:]:
+                t *= a[:,e]
+            multinom.append(t)
+        p.append(tf.stack(multinom,axis=-1))
     return tf.concat(p, axis=1)
+
+def Npolyexpand(dim,o):
+    " Returns the length of polyexpand to preallocate data"
+    from math import factorial as fac
+    choose = lambda n,k : fac(n) / (fac(k)*fac(n-k))
+    return sum([ choose( dim+i-1, dim-1 ) for i in range(1,o+1) ])
 
 def travel_op(op,indents=0):
     "Print a tree from a tensorflow op"
+    import tensorflow as tf
     # TODO: Detect op or tensor
     for _ in xrange(indents): print " ",
     print op.name, " : ", op.type
@@ -141,6 +159,7 @@ def write_trimmed_meta_graph(graph,sess,
     """
     Take a graph description, trim it down, and write it
     """
+    import tensorflow as tf
     output_graph_def \
         = tf.graph_util.convert_variables_to_constants(
             sess,graph.as_graph_def(),outputs)
@@ -161,6 +180,7 @@ def write_trimmed_pb_graph(graph,sess,
     """
     Take a graph description, trim it down, and write it
     """
+    import tensorflow as tf
     output_graph_def \
         = tf.graph_util.convert_variables_to_constants(
             sess,graph.as_graph_def(),outputs)
