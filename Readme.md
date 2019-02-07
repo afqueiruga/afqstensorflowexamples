@@ -3,7 +3,9 @@
 afq, November 2017
 
 ## Intro
-This is a small collection of my trials learning TensorFlow. There's a lot of different examples out there that seem overly complex and aren't really using the intended idioms. The documentation itself is no exception. (devs: Add a wiki talk page!) The notebooks and utilities are the best code I can write after sifting through everything I've dredged up on the internet, while constantly pestering my dear friend E. H. at Brain.
+This is a small collection of my trials learning TensorFlow. There's a lot of different examples out there that seem overly complex and aren't really using the intended idioms. The documentation itself is no exception. (devs: Add a wiki talk page!) The notebooks and utilities are the best code I can write after sifting through everything I've dredged up on the internet, while constantly pestering my dear friend E. H. at Brain. 
+
+The useful routines I've been writing get refactored into [afqstensorflowutil](https://github.com/afqueiruga/afqstensorflowutil).
 
 ## Impetus
 
